@@ -1,20 +1,7 @@
 #include <stdint.h>
-#include <stdbool.h>
 #include <stdlib.h>
 
-struct tableitem_t
-{
-  char* key;
-  void* val;
-  bool  empty;
-};
-
-struct table_t
-{
-  struct tableitem_t* items;
-  size_t cap;
-  size_t len;
-};
+#include "table.h"
 
 /* These are parameters required for the FNV-1
  * hashing function. I picked them to create
