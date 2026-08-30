@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -7,6 +9,7 @@ struct tableitem_t
 {
   char* key;
   void* val;
+  bool  isfull;
 };
 
 struct table_t
@@ -26,21 +29,14 @@ struct table_t
 #define FNV_OFFSET 0x811c9dc5
 #define FNV_PRIME  0x01000193
 
-uint32_t fnv_hash(char* dat, size_t cap)
+uint32_t fnv_hash(char* dat)
 {
   /* This is a hashing function which hashes a string
    * through FNV-1 hashing function.
    *
-   * I made a few modifications to the hash function
-   * to make it fit our needs of saving data to a
-   * hash table.
-   *
-   * 1. I made it only return unsigned values by
-   * using abs() from stdlib.h
-   *
-   * 2. I modulo the result 32-bit hash by <cap>
-   * which is the capacity of the table to make
-   * sure we get a valid index
+   * I made it only return unsigned values by
+   * using abs() from stdlib.h since it will be
+   * used to return indicies for a hash table.
    */
 
   uint32_t hash = FNV_OFFSET;
@@ -52,6 +48,24 @@ uint32_t fnv_hash(char* dat, size_t cap)
     hash ^= c;
   }
 
-  return (abs(hash) % cap);
+  return abs(hash);
+}
+
+void table_insert(struct table_t* table, char* key, void* value)
+{
+  uint32_t hashval = fnv_hash(key) % table->cap;
+  struct tableitem_t* bucket = &table->items[hashval];
+
+  while (bucket->isfull)
+  {
+    hashval = ((hashval + fnv_hash(key)) % table->cap);
+    bucket = &table->items[hashval];
+  }
+
+  *bucket = (struct tableitem_t){
+    .key = key,
+    .val = value,
+    .isfull = true 
+  };
 }
 
