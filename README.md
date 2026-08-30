@@ -7,7 +7,7 @@ about it most :p
 # RESOURCES
 - [Hash Tables](https://en.wikipedia.org/wiki/Hash_table)
 - [Open Addressing](https://en.wikipedia.org/wiki/Open_addressing)
-- [FNV-1 Hash](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash)
+- [FNV-1 Hash](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
 - [Double Hashing](https://en.wikipedia.org/wiki/Double_hashing)
 - [Lazy Deletions](https://en.wikipedia.org/wiki/Lazy_deletion)
 
