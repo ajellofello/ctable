@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "table.h"
@@ -27,26 +29,30 @@ uint32_t fnv_hash(char* dat)
   return hash;
 }
 
-struct table_t init(size_t cap)
+bool init(size_t cap, struct table_t* table)
 {
-  struct table_t table = {
+  if (cap < 8) { return false; }
+
+  *table = (struct table_t){
     .cap = cap,
     .items = calloc(cap, sizeof(struct tableitem_t))
   };
 
-  for (int i = 0; i < table.cap; i++)
-    table.items[i].empty = true;
+  for (int i = 0; i < table->cap; i++)
+    table->items[i].empty = true;
 
-  return table;
+  return true;
 }
 
-void table_insert(struct table_t* table, char* key, void* value)
+bool table_insert(struct table_t* table, char* key, void* value)
 {
   uint32_t hashval = (fnv_hash(key) % table->cap);
   struct tableitem_t* bucket = &table->items[hashval];
 
   while (!bucket->empty)
   {
+    if (strcmp(key, bucket->key) == 0) { return false; }
+
     hashval = ((hashval + fnv_hash(key)) % table->cap);
     bucket = &table->items[hashval];
   }
@@ -56,5 +62,6 @@ void table_insert(struct table_t* table, char* key, void* value)
     .val = value,
     .empty = false 
   };
+  return true;
 }
 
