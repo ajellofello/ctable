@@ -19,6 +19,7 @@ to the header and function & structure definitions as the implementations
 won't change.
 
 # RESOURCES
+
 - [Hash Tables](https://en.wikipedia.org/wiki/Hash_table)
 - [Open Addressing](https://en.wikipedia.org/wiki/Open_addressing)
 - [FNV-1 Hash](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
