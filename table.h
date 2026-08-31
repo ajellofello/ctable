@@ -18,7 +18,8 @@ struct table_t
   size_t len;
 };
 
-bool init(size_t cap, struct table_t* table);
-bool table_insert(struct table_t* table, char* key, void* value);
-
+bool table_init(size_t cap, struct table_t* table);
+bool table_put(struct table_t* table, char* key, void* value);
+bool table_get(const struct table_t table, char* key, struct tableitem_t* item);
+bool table_del(struct table_t* table, char* key);
 #endif
