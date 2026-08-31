@@ -29,7 +29,7 @@ uint32_t fnv_hash(char* dat)
   return hash;
 }
 
-bool init(size_t cap, struct table_t* table)
+bool table_init(size_t cap, struct table_t* table)
 {
   if (cap < 8) { return false; }
 
@@ -44,7 +44,7 @@ bool init(size_t cap, struct table_t* table)
   return true;
 }
 
-bool table_insert(struct table_t* table, char* key, void* value)
+bool table_put(struct table_t* table, char* key, void* value)
 {
   uint32_t hashval = (fnv_hash(key) % table->cap);
   struct tableitem_t* bucket = &table->items[hashval];
@@ -65,7 +65,7 @@ bool table_insert(struct table_t* table, char* key, void* value)
   return true;
 }
 
-bool table_search(const struct table_t table, char* key, struct tableitem_t* item)
+bool table_get(const struct table_t table, char* key, struct tableitem_t* item)
 {
   uint32_t hashval = (fnv_hash(key) % table.cap);
   struct tableitem_t* bucket = &table.items[hashval];
@@ -81,6 +81,25 @@ bool table_search(const struct table_t table, char* key, struct tableitem_t* ite
   }
 
   *item = *bucket;
+  return true;
+}
+
+bool table_del(struct table_t* table, char* key)
+{
+  uint32_t hashval = (fnv_hash(key) % table->cap);
+  struct tableitem_t* bucket = &table->items[hashval];
+
+  if (bucket->empty) { return false; }
+
+  while (strcmp(bucket->key, key) != 0)
+  {
+    hashval = ((hashval + fnv_hash(key)) % table->cap);
+    bucket = &table->items[hashval];
+
+    if (bucket->empty) { return false; }
+  }
+
+  bucket->empty = true;
   return true;
 }
 
