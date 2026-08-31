@@ -45,34 +45,23 @@ void* xcalloc(size_t n, size_t size)
   return mem;
 }
 
-/* Gets the bucket which has <key> as its key and
- * returns it.
- *
- * It takes an optional <bucket_ptr> parameter which
- * can be NULL. If it isn't then it will be set to 
- * the memory address of the bucket the function is 
- * currently looking at. I made it like this mainly
- * for the table_put() function to be able to use
- * it. If it's in any other function its mostly useless
- */
-struct tableitem_t* getbucket(const struct table_t table, char* key, struct tableitem_t** bucket_ptr)
+bool getbucket(const struct table_t table, char* key, struct tableitem_t** bucket_ptr)
 {
   uint32_t hashval = (fnvhash(key) % table.cap);
-  struct tableitem_t* bucket = &table.items[hashval];
+  struct tableitem_t* bucket;
+  *bucket_ptr = bucket = &table.items[hashval];
 
-  if (bucket_ptr != NULL) { *bucket_ptr = bucket; }
-  if (bucket->empty) { return NULL; }
+  if (bucket->empty) { return false; }
 
   while (strcmp(bucket->key, key) != 0)
   {
     hashval = ((hashval + fnvhash(key)) % table.cap);
-    bucket = &table.items[hashval];
+    *bucket_ptr = bucket = &table.items[hashval];
 
-    if (bucket_ptr != NULL) { *bucket_ptr = bucket; }
-    if (bucket->empty) { return NULL; }
+    if (bucket->empty) { return false; }
   }
 
-  return bucket;
+  return true;
 }
 
 bool tableinit(size_t cap, struct table_t* table)
@@ -114,8 +103,8 @@ bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
 
 bool tableget(const struct table_t table, char* key, struct tableitem_t* item)
 {
-  struct tableitem_t* bucket = getbucket(table, key, NULL);
-  if (!bucket) { return false; }
+  struct tableitem_t* bucket;
+  if (!getbucket(table, key, &bucket)) { return false; }
 
   *item = *bucket;
   return true;
@@ -123,8 +112,8 @@ bool tableget(const struct table_t table, char* key, struct tableitem_t* item)
 
 bool tabledel(struct table_t* table, char* key)
 {
-  struct tableitem_t* bucket = getbucket(*table, key, NULL);
-  if (!bucket) { return false; }
+  struct tableitem_t* bucket;
+  if (!getbucket(*table, key, &bucket)) { return false; }
 
   bucket->empty = true;
   return true;
@@ -132,8 +121,8 @@ bool tabledel(struct table_t* table, char* key)
 
 bool tableup(struct table_t* table, char* key, void* val, size_t valsize)
 {
-  struct tableitem_t* bucket = getbucket(*table, key, NULL);
-  if (!bucket) { return false; }
+  struct tableitem_t* bucket;
+  if (!getbucket(*table, key, &bucket)) { return false; }
 
   memcpy(bucket->val, val, valsize);
   return true;
