@@ -1,5 +1,5 @@
-#ifndef TABLE_H
-#define TABLE_H
+#ifndef LIBTABLE_H
+#define LIBTABLE_H
 
 #include <stdbool.h>
 #include <stddef.h>
