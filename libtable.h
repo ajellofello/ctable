@@ -18,11 +18,11 @@ struct table_t
   size_t len;
 };
 
-bool tableinit(size_t cap, struct table_t* table);
-void tablefree(struct table_t* table);
-bool tableput(struct table_t* table, char* key, long val);
-bool tableget(const struct table_t table, char* key, struct tableitem_t* item);
-bool tabledel(struct table_t* table, char* key);
-bool tableup(struct table_t* table, char* key, long val);
+extern bool tableinit(size_t cap, struct table_t* table);
+extern void tablefree(struct table_t* table);
+extern bool tableput(struct table_t* table, char* key, long val);
+extern bool tableget(const struct table_t table, char* key, struct tableitem_t* item);
+extern bool tabledel(struct table_t* table, char* key);
+extern bool tableup(struct table_t* table, char* key, long val);
 
 #endif

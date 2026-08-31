@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "table.h"
+#include "libtable.h"
 
 /* These are parameters required for the FNV-1
  * hashing function. I picked them to create
