@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -83,19 +84,23 @@ bool tableinit(size_t cap, struct table_t* table)
 
 void tablefree(struct table_t* table)
 {
+  for (int i = 0; i < table->cap; i++)
+    if (table->items[i].val != NULL) { free(table->items[i].val); }
   free(table->items);
 }
 
-bool tableput(struct table_t* table, char* key, long val)
+bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
 {
   struct tableitem_t* bucket = NULL;
   if (getbucket(*table, key, &bucket)) { return false; }
 
   *bucket = (struct tableitem_t){
     .key = key,
-    .val = val,
     .empty = false
   };
+
+  bucket->val = malloc(valsize);
+  memcpy(bucket->val, val, valsize);
   return true;
 }
 
@@ -117,12 +122,12 @@ bool tabledel(struct table_t* table, char* key)
   return true;
 }
 
-bool tableup(struct table_t* table, char* key, long val)
+bool tableup(struct table_t* table, char* key, void* val, size_t valsize)
 {
   struct tableitem_t* bucket = getbucket(*table, key, NULL);
   if (!bucket) { return false; }
 
-  bucket->val = val;
+  memcpy(bucket->val, val, valsize);
   return true;
 }
 

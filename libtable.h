@@ -7,7 +7,7 @@
 struct tableitem_t
 {
   char* key;
-  long val;
+  void* val;
   bool empty;
 };
 
@@ -20,9 +20,9 @@ struct table_t
 
 bool tableinit(size_t cap, struct table_t* table);
 void tablefree(struct table_t* table);
-bool tableput(struct table_t* table, char* key, long val);
+bool tableput(struct table_t* table, char* key, void* val, size_t size);
 bool tableget(const struct table_t table, char* key, struct tableitem_t* item);
 bool tabledel(struct table_t* table, char* key);
-bool tableup(struct table_t* table, char* key, long val);
+bool tableup(struct table_t* table, char* key, void* val, size_t size);
 
 #endif
