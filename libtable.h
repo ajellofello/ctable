@@ -18,7 +18,7 @@ struct table_t
   size_t len;
 };
 
-bool tableinit(size_t cap, struct table_t* table);
+bool tableinit(size_t basesize, struct table_t* table);
 void tablefree(struct table_t* table);
 bool tableput(struct table_t* table, char* key, void* val, size_t size);
 bool tableget(const struct table_t table, char* key, struct tableitem_t* item);

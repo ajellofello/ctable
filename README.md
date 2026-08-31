@@ -14,8 +14,9 @@ linked to the item the caller used which means you can update the original value
 the value in the table won't change. Also this separates the lifetime of the item's value
 from the lifetime of the original value.
 
-a custom version of `calloc()` & `malloc()` are used `xcalloc()` & `xmalloc()` which basically
-just exit from the program if either of them fail with a status code of `1`.
+a custom version of `calloc()`, `malloc()` & `realloc()` are used `xcalloc()`, `xmalloc()` &
+`xrealloc()` which basically just exit from the program if either of them fail with a status 
+code of `1`.
 
 # RESOURCES
 

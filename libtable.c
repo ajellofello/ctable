@@ -29,6 +29,14 @@ uint32_t fnvhash(char* dat)
   return hash;
 }
 
+void* xrealloc(void *p, size_t size)
+{
+  void* mem = realloc(p, size);
+
+  if (mem == NULL) { exit(1); }
+  return mem;
+}
+
 void* xmalloc(size_t size)
 {
   void* mem = malloc(size);
@@ -64,13 +72,13 @@ bool getbucket(const struct table_t table, char* key, struct tableitem_t** bucke
   return true;
 }
 
-bool tableinit(size_t cap, struct table_t* table)
+bool tableinit(size_t basesize, struct table_t* table)
 {
-  if (cap < 8) { return false; }
+  if (basesize < 8) { return false; }
 
   *table = (struct table_t){
-    .cap = cap,
-    .items = xcalloc(cap, sizeof(struct tableitem_t))
+    .cap = basesize,
+    .items = xcalloc(basesize, sizeof(struct tableitem_t))
   };
 
   for (int i = 0; i < table->cap; i++)
@@ -88,6 +96,9 @@ void tablefree(struct table_t* table)
 
 bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
 {
+  /* For each new 5 elements added allocate 8 extra spots in memory */
+  if ((table->len % 5) == 0) { xrealloc(table->items, (table->cap + 8)); }
+
   struct tableitem_t* bucket = NULL;
   if (getbucket(*table, key, &bucket)) { return false; }
 
@@ -98,6 +109,7 @@ bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
 
   bucket->val = xmalloc(valsize);
   memcpy(bucket->val, val, valsize);
+  table->len++;
   return true;
 }
 
@@ -116,6 +128,7 @@ bool tabledel(struct table_t* table, char* key)
   if (!getbucket(*table, key, &bucket)) { return false; }
 
   bucket->empty = true;
+  table->len--;
   return true;
 }
 
