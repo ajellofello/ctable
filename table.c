@@ -65,3 +65,22 @@ bool table_insert(struct table_t* table, char* key, void* value)
   return true;
 }
 
+bool table_search(const struct table_t table, char* key, struct tableitem_t* item)
+{
+  uint32_t hashval = (fnv_hash(key) % table.cap);
+  struct tableitem_t* bucket = &table.items[hashval];
+
+  if (bucket->empty) { return false; }
+
+  while (strcmp(key, bucket->key) != 0)
+  {
+    hashval = ((hashval + fnv_hash(key)) % table.cap);
+    bucket = &table.items[hashval];
+
+    if (bucket->empty) { return false; }
+  }
+
+  *item = *bucket;
+  return true;
+}
+
