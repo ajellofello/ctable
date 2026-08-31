@@ -29,14 +29,6 @@ uint32_t fnv_hash(char* dat)
   return hash;
 }
 
-void* xmalloc(size_t size)
-{
-  void* mem = malloc(size);
-
-  if (mem == NULL) { exit(1); }
-  return mem;
-}
-
 void* xcalloc(size_t n, size_t size)
 {
   void* mem = calloc(n, size);
