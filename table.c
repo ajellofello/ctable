@@ -37,6 +37,24 @@ void* xcalloc(size_t n, size_t size)
   return mem;
 }
 
+struct tableitem_t* getbucket(const struct table_t table, char* key)
+{
+  uint32_t hashval = (fnv_hash(key) % table.cap);
+  struct tableitem_t* bucket = &table.items[hashval];
+  
+  if (bucket->empty) { return NULL; }
+
+  while (strcmp(bucket->key, key) != 0)
+  {
+    hashval = ((hashval + fnv_hash(key)) % table.cap);
+    bucket = &table.items[hashval];
+
+    if (bucket->empty) { return NULL; }
+  }
+
+  return bucket;
+}
+
 bool table_init(size_t cap, struct table_t* table)
 {
   if (cap < 8) { return false; }
@@ -52,7 +70,7 @@ bool table_init(size_t cap, struct table_t* table)
   return true;
 }
 
-bool table_put(struct table_t* table, char* key, void* value)
+bool table_put(struct table_t* table, char* key, long val)
 {
   uint32_t hashval = (fnv_hash(key) % table->cap);
   struct tableitem_t* bucket = &table->items[hashval];
@@ -67,7 +85,7 @@ bool table_put(struct table_t* table, char* key, void* value)
 
   *bucket = (struct tableitem_t){
     .key = key,
-    .val = value,
+    .val = val,
     .empty = false 
   };
   return true;
@@ -75,18 +93,9 @@ bool table_put(struct table_t* table, char* key, void* value)
 
 bool table_get(const struct table_t table, char* key, struct tableitem_t* item)
 {
-  uint32_t hashval = (fnv_hash(key) % table.cap);
-  struct tableitem_t* bucket = &table.items[hashval];
+  struct tableitem_t* bucket = getbucket(table, key);
 
-  if (bucket->empty) { return false; }
-
-  while (strcmp(key, bucket->key) != 0)
-  {
-    hashval = ((hashval + fnv_hash(key)) % table.cap);
-    bucket = &table.items[hashval];
-
-    if (bucket->empty) { return false; }
-  }
+  if (!bucket) { return false; }
 
   *item = *bucket;
   return true;
@@ -94,39 +103,21 @@ bool table_get(const struct table_t table, char* key, struct tableitem_t* item)
 
 bool table_del(struct table_t* table, char* key)
 {
-  uint32_t hashval = (fnv_hash(key) % table->cap);
-  struct tableitem_t* bucket = &table->items[hashval];
+  struct tableitem_t* bucket = getbucket(*table, key);
 
-  if (bucket->empty) { return false; }
-
-  while (strcmp(bucket->key, key) != 0)
-  {
-    hashval = ((hashval + fnv_hash(key)) % table->cap);
-    bucket = &table->items[hashval];
-
-    if (bucket->empty) { return false; }
-  }
+  if (!bucket) { return false; }
 
   bucket->empty = true;
   return true;
 }
 
-bool table_up(struct table_t* table, char* key, void* newval)
+bool table_up(struct table_t* table, char* key, long val)
 {
-  uint32_t hashval = (fnv_hash(key) % table->cap);
-  struct tableitem_t* bucket = &table->items[hashval];
+  struct tableitem_t* bucket = getbucket(*table, key);
 
-  if (bucket->empty) { return false; }
+  if (!bucket) { return false; }
 
-  while (strcmp(bucket->key, key) != 0)
-  {
-    hashval = ((hashval + fnv_hash(key)) % table->cap);
-    bucket = &table->items[hashval];
-
-    if (bucket->empty) { return false; }
-  }
-
-  bucket->val = newval;
+  bucket->val = val;
   return true;
 }
 
