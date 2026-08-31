@@ -22,4 +22,5 @@ bool table_init(size_t cap, struct table_t* table);
 bool table_put(struct table_t* table, char* key, void* value);
 bool table_get(const struct table_t table, char* key, struct tableitem_t* item);
 bool table_del(struct table_t* table, char* key);
+bool table_up(struct table_t* table, char* key, void* newval);
 #endif

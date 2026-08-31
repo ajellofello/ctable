@@ -103,3 +103,22 @@ bool table_del(struct table_t* table, char* key)
   return true;
 }
 
+bool table_up(struct table_t* table, char* key, void* newval)
+{
+  uint32_t hashval = (fnv_hash(key) % table->cap);
+  struct tableitem_t* bucket = &table->items[hashval];
+
+  if (bucket->empty) { return false; }
+
+  while (strcmp(bucket->key, key) != 0)
+  {
+    hashval = ((hashval + fnv_hash(key)) % table->cap);
+    bucket = &table->items[hashval];
+
+    if (bucket->empty) { return false; }
+  }
+
+  bucket->val = newval;
+  return true;
+}
+
