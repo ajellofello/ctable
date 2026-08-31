@@ -4,23 +4,18 @@ This hash table uses [_open addressing_](https://en.wikipedia.org/wiki/Open_addr
 to handle collisions. I used the hashing function [FNV-1](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function) because I heard
 about it most :p
 
-This hash table saves _keys_ as _strings_ while saving the _values_ as _longs_ this is because
-using void pointers had too many issues including:
+This hash table saves _keys_ as _strings_ while saving the _values_ as _void pointers_
+which means you can use any type you want for the values. Sadly this also means you
+have to dereference and cast the pointer before using it.
 
-1. if the pointer went out of the current scope the item
-in the table would be looking at trash
+The void pointer implementation uses `memcpy()` to copy the data that the pointer
+is pointing to into the value of the table item, so the table item doesn't have to be
+linked to the item the caller used which means you can update the original value and 
+the value in the table won't change. Also this separates the lifetime of the item's value
+from the lifetime of the original value.
 
-2. if the item is changed in the calling function the value in 
-the database will change as well
-
-So this sadly means that if you want to use something other than
-`long` you will have to change that yourself. It is only changes
-to the header and function & structure definitions as the implementations
-won't change.
-
-# NOTES
-
-If `calloc()` fails the library will exit from the program with a status code of `1`
+a custom version of `calloc()` & `malloc()` are used `xcalloc()` & `xmalloc()` which basically
+just exit from the program if either of them fail with a status code of `1`.
 
 # RESOURCES
 
