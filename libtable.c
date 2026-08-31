@@ -29,6 +29,14 @@ uint32_t fnvhash(char* dat)
   return hash;
 }
 
+void* xmalloc(size_t size)
+{
+  void* mem = malloc(size);
+
+  if (mem == NULL) { exit(1); }
+  return mem;
+}
+
 void* xcalloc(size_t n, size_t size)
 {
   void* mem = calloc(n, size);
@@ -99,7 +107,7 @@ bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
     .empty = false
   };
 
-  bucket->val = malloc(valsize);
+  bucket->val = xmalloc(valsize);
   memcpy(bucket->val, val, valsize);
   return true;
 }
