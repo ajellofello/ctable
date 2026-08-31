@@ -18,6 +18,10 @@ So this sadly means that if you want to use something other than
 to the header and function & structure definitions as the implementations
 won't change.
 
+# NOTES
+
+If `calloc()` fails the library will exit from the program with a status code of `1`
+
 # RESOURCES
 
 - [Hash Tables](https://en.wikipedia.org/wiki/Hash_table)
