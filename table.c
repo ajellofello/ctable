@@ -29,13 +29,29 @@ uint32_t fnv_hash(char* dat)
   return hash;
 }
 
+void* xmalloc(size_t size)
+{
+  void* mem = malloc(size);
+
+  if (mem == NULL) { exit(1); }
+  return mem;
+}
+
+void* xcalloc(size_t n, size_t size)
+{
+  void* mem = calloc(n, size);
+
+  if (mem == NULL) { exit(1); }
+  return mem;
+}
+
 bool table_init(size_t cap, struct table_t* table)
 {
   if (cap < 8) { return false; }
 
   *table = (struct table_t){
     .cap = cap,
-    .items = calloc(cap, sizeof(struct tableitem_t))
+    .items = xcalloc(cap, sizeof(struct tableitem_t))
   };
 
   for (int i = 0; i < table->cap; i++)
