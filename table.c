@@ -15,7 +15,7 @@
 #define FNV_OFFSET 0x811c9dc5
 #define FNV_PRIME  0x01000193
 
-uint32_t fnv_hash(char* dat)
+uint32_t fnvhash(char* dat)
 {
   uint32_t hash = FNV_OFFSET;
   char c;
@@ -37,25 +37,37 @@ void* xcalloc(size_t n, size_t size)
   return mem;
 }
 
-struct tableitem_t* getbucket(const struct table_t table, char* key)
+/* Gets the bucket which has <key> as its key and
+ * returns it.
+ *
+ * It takes an optional <bucket_ptr> parameter which
+ * can be NULL. If it isn't then it will be set to 
+ * the memory address of the bucket the function is 
+ * currently looking at. I made it like this mainly
+ * for the table_put() function to be able to use
+ * it. If it's in any other function its mostly useless
+ */
+struct tableitem_t* getbucket(const struct table_t table, char* key, struct tableitem_t** bucket_ptr)
 {
-  uint32_t hashval = (fnv_hash(key) % table.cap);
+  uint32_t hashval = (fnvhash(key) % table.cap);
   struct tableitem_t* bucket = &table.items[hashval];
-  
+
+  if (bucket_ptr != NULL) { *bucket_ptr = bucket; }
   if (bucket->empty) { return NULL; }
 
   while (strcmp(bucket->key, key) != 0)
   {
-    hashval = ((hashval + fnv_hash(key)) % table.cap);
+    hashval = ((hashval + fnvhash(key)) % table.cap);
     bucket = &table.items[hashval];
 
+    if (bucket_ptr != NULL) { *bucket_ptr = bucket; }
     if (bucket->empty) { return NULL; }
   }
 
   return bucket;
 }
 
-bool table_init(size_t cap, struct table_t* table)
+bool tableinit(size_t cap, struct table_t* table)
 {
   if (cap < 8) { return false; }
 
@@ -70,51 +82,45 @@ bool table_init(size_t cap, struct table_t* table)
   return true;
 }
 
-bool table_put(struct table_t* table, char* key, long val)
+void tablefree(struct table_t* table)
 {
-  uint32_t hashval = (fnv_hash(key) % table->cap);
-  struct tableitem_t* bucket = &table->items[hashval];
+  free(table->items);
+}
 
-  while (!bucket->empty)
-  {
-    if (strcmp(key, bucket->key) == 0) { return false; }
-
-    hashval = ((hashval + fnv_hash(key)) % table->cap);
-    bucket = &table->items[hashval];
-  }
+bool tableput(struct table_t* table, char* key, long val)
+{
+  struct tableitem_t* bucket = NULL;
+  if (getbucket(*table, key, &bucket)) { return false; }
 
   *bucket = (struct tableitem_t){
     .key = key,
     .val = val,
-    .empty = false 
+    .empty = false
   };
   return true;
 }
 
-bool table_get(const struct table_t table, char* key, struct tableitem_t* item)
+bool tableget(const struct table_t table, char* key, struct tableitem_t* item)
 {
-  struct tableitem_t* bucket = getbucket(table, key);
-
+  struct tableitem_t* bucket = getbucket(table, key, NULL);
   if (!bucket) { return false; }
 
   *item = *bucket;
   return true;
 }
 
-bool table_del(struct table_t* table, char* key)
+bool tabledel(struct table_t* table, char* key)
 {
-  struct tableitem_t* bucket = getbucket(*table, key);
-
+  struct tableitem_t* bucket = getbucket(*table, key, NULL);
   if (!bucket) { return false; }
 
   bucket->empty = true;
   return true;
 }
 
-bool table_up(struct table_t* table, char* key, long val)
+bool tableup(struct table_t* table, char* key, long val)
 {
-  struct tableitem_t* bucket = getbucket(*table, key);
-
+  struct tableitem_t* bucket = getbucket(*table, key, NULL);
   if (!bucket) { return false; }
 
   bucket->val = val;
