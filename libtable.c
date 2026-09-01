@@ -97,9 +97,10 @@ void tablefree(struct table_t* table)
 bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
 {
   /* For each new 5 elements added allocate 8 extra spots in memory */
-  if ((table->len % 5) == 0) { xrealloc(table->items, (table->cap += 8)); }
+  /* TODO(1): make sure to not increase when elements are deleted */
+  if ((table->len % 5) == 0 && table->len != 0) { xrealloc(table->items, (table->cap += 8)); }
 
-  struct tableitem_t* bucket = NULL;
+  struct tableitem_t* bucket;
   if (getbucket(*table, key, &bucket)) { return false; }
 
   *bucket = (struct tableitem_t){
