@@ -4,25 +4,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-struct tableitem_t
+typedef struct
 {
   char* key;
   void* val;
   bool empty;
-};
+} tableitem_t;
 
-struct table_t
+typedef struct 
 {
-  struct tableitem_t* items;
+  tableitem_t* items;
   size_t cap;
   size_t len;
-};
+} table_t;
 
-bool tableinit(size_t basesize, struct table_t* table);
-void tablefree(struct table_t* table);
-bool tableput(struct table_t* table, char* key, void* val, size_t size);
-bool tableget(const struct table_t table, char* key, struct tableitem_t* item);
-bool tabledel(struct table_t* table, char* key);
-bool tableup(struct table_t* table, char* key, void* val, size_t size);
+bool tableinit(size_t basesize, table_t* table);
+void tablefree(table_t* table);
+bool tableput(table_t* table, char* key, void* val, size_t size);
+bool tableget(const table_t table, char* key, tableitem_t* item);
+bool tabledel(table_t* table, char* key);
+bool tableup(table_t* table, char* key, void* val, size_t size);
 
 #endif

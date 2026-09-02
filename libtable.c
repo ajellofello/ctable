@@ -53,10 +53,10 @@ void* xcalloc(size_t n, size_t size)
   return mem;
 }
 
-bool getbucket(const struct table_t table, char* key, struct tableitem_t** bucket_ptr)
+bool getbucket(const table_t table, char* key, tableitem_t** bucket_ptr)
 {
   uint32_t hashval = (fnvhash(key) % table.cap);
-  struct tableitem_t* bucket;
+  tableitem_t* bucket;
   *bucket_ptr = bucket = &table.items[hashval];
 
   if (bucket->empty) { return false; }
@@ -72,13 +72,13 @@ bool getbucket(const struct table_t table, char* key, struct tableitem_t** bucke
   return true;
 }
 
-bool tableinit(size_t basesize, struct table_t* table)
+bool tableinit(size_t basesize, table_t* table)
 {
   if (basesize < 8) { return false; }
 
-  *table = (struct table_t){
+  *table = (table_t){
     .cap = basesize,
-    .items = xcalloc(basesize, sizeof(struct tableitem_t))
+    .items = xcalloc(basesize, sizeof(tableitem_t))
   };
 
   for (int i = 0; i < table->cap; i++)
@@ -87,23 +87,23 @@ bool tableinit(size_t basesize, struct table_t* table)
   return true;
 }
 
-void tablefree(struct table_t* table)
+void tablefree(table_t* table)
 {
   for (int i = 0; i < table->cap; i++)
     if (table->items[i].val != NULL) { free(table->items[i].val); }
   free(table->items);
 }
 
-bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
+bool tableput(table_t* table, char* key, void* val, size_t valsize)
 {
   /* For each new 5 elements added allocate 8 extra spots in memory */
   /* TODO(1): make sure to not increase when elements are deleted */
   if ((table->len % 5) == 0 && table->len != 0) { xrealloc(table->items, (table->cap += 8)); }
 
-  struct tableitem_t* bucket;
+  tableitem_t* bucket;
   if (getbucket(*table, key, &bucket)) { return false; }
 
-  *bucket = (struct tableitem_t){
+  *bucket = (tableitem_t){
     .key = key,
     .empty = false
   };
@@ -114,18 +114,18 @@ bool tableput(struct table_t* table, char* key, void* val, size_t valsize)
   return true;
 }
 
-bool tableget(const struct table_t table, char* key, struct tableitem_t* item)
+bool tableget(const table_t table, char* key, tableitem_t* item)
 {
-  struct tableitem_t* bucket;
+  tableitem_t* bucket;
   if (!getbucket(table, key, &bucket)) { return false; }
 
   *item = *bucket;
   return true;
 }
 
-bool tabledel(struct table_t* table, char* key)
+bool tabledel(table_t* table, char* key)
 {
-  struct tableitem_t* bucket;
+  tableitem_t* bucket;
   if (!getbucket(*table, key, &bucket)) { return false; }
 
   bucket->empty = true;
@@ -133,9 +133,9 @@ bool tabledel(struct table_t* table, char* key)
   return true;
 }
 
-bool tableup(struct table_t* table, char* key, void* val, size_t valsize)
+bool tableup(table_t* table, char* key, void* val, size_t valsize)
 {
-  struct tableitem_t* bucket;
+  tableitem_t* bucket;
   if (!getbucket(*table, key, &bucket)) { return false; }
 
   memcpy(bucket->val, val, valsize);
