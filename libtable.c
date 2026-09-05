@@ -76,6 +76,7 @@ bool tableinit(size_t basesize, table_t* table)
 {
   if (basesize < 8) { return false; }
 
+  table = xmalloc(sizeof(table_t));
   *table = (table_t){
     .cap = basesize,
     .items = xcalloc(basesize, sizeof(tableitem_t))
@@ -90,8 +91,12 @@ bool tableinit(size_t basesize, table_t* table)
 void tablefree(table_t* table)
 {
   for (int i = 0; i < table->cap; i++)
+  {
+    if (table->items[i].key != NULL) { free(table->items[i].key); }
     if (table->items[i].val != NULL) { free(table->items[i].val); }
+  }
   free(table->items);
+  free(table);
 }
 
 bool tableput(table_t* table, char* key, void* val, size_t valsize)
@@ -104,7 +109,7 @@ bool tableput(table_t* table, char* key, void* val, size_t valsize)
   if (getbucket(*table, key, &bucket)) { return false; }
 
   *bucket = (tableitem_t){
-    .key = key,
+    .key = strdup(key),
     .empty = false
   };
 
