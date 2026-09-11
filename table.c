@@ -6,6 +6,7 @@
 #include "table.h"
 
 #define LIB "table"
+#define ALLOC_POINT 3
 /* These are parameters required for the FNV-1
  * hashing function. I picked them to create
  * 32-bit hash value once done.
@@ -75,15 +76,9 @@ bool getbucket(const table_t table, char* key, tableitem_t** bucket_ptr)
 
 table_t tablecreate(size_t basesize)
 {
-  /* The base size has to be equal or greater than 8
-   * because in some cases were the base size is too
-   * small tableput() may hang in an while trying to
-   * find an empty bucket to place the item into, but
-   * there would be none.
-   */
-  if (basesize < 8)
+  if (basesiz <= 0)
   {
-    fprintf(stderr, LIB": tablecreate(): the base size must be greater than or equal to 8\n");
+    fprintf(stderr, LIB": tablecreate(): the base size must be greater than 0\n");
     exit(1);
   }
 
@@ -112,9 +107,7 @@ void tablefree(table_t* table)
 
 bool tableput(table_t* table, char* key, void* val, size_t valsize)
 {
-  /* For each new 5 elements added allocate 8 extra spots in memory */
-  /* TODO(1): make sure to not increase when elements are deleted */
-  if ((table->len % 5) == 0 && table->len != 0) { xrealloc(table->items, (table->cap += 8)); }
+  if ((table->cap - table->len) <= ALLOC_POINT) { xrealloc(table->items, (table->cap += 8)); }
 
   tableitem_t* bucket;
   if (getbucket(*table, key, &bucket)) { return false; }
