@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "libtable.h"
+#include "table.h"
 
+#define LIB "table"
 /* These are parameters required for the FNV-1
  * hashing function. I picked them to create
  * 32-bit hash value once done.
@@ -72,9 +73,19 @@ bool getbucket(const table_t table, char* key, tableitem_t** bucket_ptr)
   return true;
 }
 
-bool tableinit(size_t basesize, table_t* table)
+table_t tablecreate(size_t basesize)
 {
-  if (basesize < 8) { return false; }
+  /* The base size has to be equal or greater than 8
+   * because in some cases were the base size is too
+   * small tableput() may hang in an while trying to
+   * find an empty bucket to place the item into, but
+   * there would be none.
+   */
+  if (basesize < 8)
+  {
+    fprintf(stderr, LIB": tablecreate(): the base size must be greater than or equal to 8\n");
+    exit(1);
+  }
 
   table = xmalloc(sizeof(table_t));
   *table = (table_t){
