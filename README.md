@@ -7,8 +7,9 @@ It saves _keys_ as _strings_ while saving _values_ as _void pointers_
 
 # NOTES
 
-When using `tableput()` or `tableup()` the value for the item will be copied into the
-hash table's updated/inserted item, so that their life times are separate.
+When calling `tableput()` or `tableup()` the value for the item will be copied into the
+hash table's updated/inserted item, so that the lifetime of the given void pointer value
+and the void pointer value of the hash table item are separate.
 
 If any of C's allocators face an error the program will exit with a status code of `1`
 and print `errno`.
