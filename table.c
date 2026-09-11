@@ -35,7 +35,11 @@ void* xrealloc(void *p, size_t size)
 {
   void* mem = realloc(p, size);
 
-  if (mem == NULL) { exit(1); }
+  if (mem == NULL)
+  {
+    perror("realloc");
+    exit(1);
+  }
   return mem;
 }
 
@@ -43,7 +47,11 @@ void* xmalloc(size_t size)
 {
   void* mem = malloc(size);
 
-  if (mem == NULL) { exit(1); }
+  if (mem == NULL)
+  {
+    perror("malloc");
+    exit(1);
+  }
   return mem;
 }
 
@@ -51,7 +59,11 @@ void* xcalloc(size_t n, size_t size)
 {
   void* mem = calloc(n, size);
 
-  if (mem == NULL) { exit(1); }
+  if (mem == NULL)
+  {
+    perror("calloc");
+    exit(1);
+  }
   return mem;
 }
 
