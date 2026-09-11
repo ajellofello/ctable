@@ -1,17 +1,23 @@
+# creates a static library archive and puts it into
+# build/
+
 OBJECTS := $(addprefix build/, table.o)
 CFLAGS  := -std=c99
-target  := build/libtable.a
+targets  := $(addprefix build/, libtable.a table.h)
 
-$(target): $(OBJECTS)
+build/libtable.a: $(OBJECTS) build/table.h
 	$(AR) r $@ $^
+
+build/table.h:
+	cp ./table.h build/table.h
 
 build/table.o: table.c table.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean debug
 clean:
-	$(RM) $(OBJECTS) $(target)
+	$(RM) $(OBJECTS) $(targets)
 
 debug: CFLAGS += -g -Werror
-debug: $(target)
+debug: $(targets)
 

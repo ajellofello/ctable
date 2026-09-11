@@ -17,12 +17,12 @@
 #define FNV_OFFSET 0x811c9dc5
 #define FNV_PRIME  0x01000193
 
-uint32_t fnvhash(char* dat)
+uint32_t fnvhash(const char* key)
 {
   uint32_t hash = FNV_OFFSET;
   char c;
 
-  while ((c = *dat++))
+  while ((c = *key++))
   {
     hash *= FNV_PRIME;
     hash ^= c;
@@ -67,7 +67,7 @@ void* xcalloc(size_t n, size_t size)
   return mem;
 }
 
-bool getbucket(const table_t table, char* key, tableitem_t** bucket_ptr)
+bool getbucket(const table_t table, const char* key, tableitem_t** bucket_ptr)
 {
   uint32_t hashval = (fnvhash(key) % table.cap);
   tableitem_t* bucket;
@@ -117,7 +117,7 @@ void tablefree(table_t* table)
   free(table);
 }
 
-bool tableput(table_t* table, char* key, void* val, size_t valsize)
+bool tableput(table_t* table, const char* key, const void* val, const size_t size)
 {
   if ((table->cap - table->len) <= ALLOC_POINT) { xrealloc(table->items, (table->cap += 8)); }
 
@@ -126,17 +126,17 @@ bool tableput(table_t* table, char* key, void* val, size_t valsize)
 
   *bucket = (tableitem_t){
     .key = xmalloc(strlen(key)),
-    .val = xmalloc(valsize),
+    .val = xmalloc(size),
     .empty = false
   };
 
   strcpy(bucket->key, key);
-  memcpy(bucket->val, val, valsize);
+  memcpy(bucket->val, val, size);
   table->len++;
   return true;
 }
 
-bool tableget(const table_t table, char* key, tableitem_t* item)
+bool tableget(const table_t table, const char* key, tableitem_t* item)
 {
   tableitem_t* bucket;
   if (!getbucket(table, key, &bucket)) { return false; }
@@ -145,7 +145,7 @@ bool tableget(const table_t table, char* key, tableitem_t* item)
   return true;
 }
 
-bool tabledel(table_t* table, char* key)
+bool tabledel(table_t* table, const char* key)
 {
   tableitem_t* bucket;
   if (!getbucket(*table, key, &bucket)) { return false; }
@@ -155,12 +155,12 @@ bool tabledel(table_t* table, char* key)
   return true;
 }
 
-bool tableup(table_t* table, char* key, void* val, size_t valsize)
+bool tableup(table_t* table, const char* key, const void* val, const size_t size)
 {
   tableitem_t* bucket;
   if (!getbucket(*table, key, &bucket)) { return false; }
 
-  memcpy(bucket->val, val, valsize);
+  memcpy(bucket->val, val, size);
   return true;
 }
 
