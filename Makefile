@@ -1,17 +1,17 @@
 # creates a static library archive and puts it into
 # build/
 
-OBJECTS := $(addprefix build/, table.o)
+OBJECTS := $(addprefix build/, ctable.o)
 CFLAGS  := -std=c99
-targets  := $(addprefix build/, libtable.a table.h)
+targets  := $(addprefix build/, libctable.a ctable.h)
 
-build/libtable.a: $(OBJECTS) build/table.h
+build/libctable.a: $(OBJECTS) build/ctable.h
 	$(AR) r $@ $^
 
-build/table.h:
-	cp ./table.h build/table.h
+build/ctable.h: ctable.h
+	cp $< $@
 
-build/table.o: table.c table.h
+build/ctable.o: ctable.c ctable.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean debug

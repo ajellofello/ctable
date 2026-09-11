@@ -3,9 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "table.h"
+#include "ctable.h"
 
-#define LIB "table"
+#define LIB "ctable"
 #define ALLOC_POINT 3
 /* These are parameters required for the FNV-1
  * hashing function. I picked them to create
@@ -67,10 +67,10 @@ void* xcalloc(size_t n, size_t size)
   return mem;
 }
 
-bool getbucket(const table_t table, const char* key, tableitem_t** bucket_ptr)
+bool getbucket(const ctable_t table, const char* key, ctableitem_t** bucket_ptr)
 {
   uint32_t hashval = (fnvhash(key) % table.cap);
-  tableitem_t* bucket;
+  ctableitem_t* bucket;
   *bucket_ptr = bucket = &table.items[hashval];
 
   if (bucket->empty) { return false; }
@@ -86,7 +86,7 @@ bool getbucket(const table_t table, const char* key, tableitem_t** bucket_ptr)
   return true;
 }
 
-table_t* tablecreate(size_t basesize)
+ctable_t* ctablecreate(size_t basesize)
 {
   if (basesize <= 0)
   {
@@ -94,10 +94,10 @@ table_t* tablecreate(size_t basesize)
     exit(1);
   }
 
-  table_t* table = xmalloc(sizeof(table_t));
-  *table = (table_t){
+  ctable_t* table = xmalloc(sizeof(ctable_t));
+  *table = (ctable_t){
     .cap = basesize,
-    .items = xcalloc(basesize, sizeof(tableitem_t))
+    .items = xcalloc(basesize, sizeof(ctableitem_t))
   };
 
   for (int i = 0; i < table->cap; i++)
@@ -106,7 +106,7 @@ table_t* tablecreate(size_t basesize)
   return table;
 }
 
-void tablefree(table_t* table)
+void ctablefree(ctable_t* table)
 {
   for (int i = 0; i < table->cap; i++)
   {
@@ -117,14 +117,14 @@ void tablefree(table_t* table)
   free(table);
 }
 
-bool tableput(table_t* table, const char* key, const void* val, const size_t size)
+bool ctableput(ctable_t* table, const char* key, const void* val, const size_t size)
 {
   if ((table->cap - table->len) <= ALLOC_POINT) { xrealloc(table->items, (table->cap += 8)); }
 
-  tableitem_t* bucket;
+  ctableitem_t* bucket;
   if (getbucket(*table, key, &bucket)) { return false; }
 
-  *bucket = (tableitem_t){
+  *bucket = (ctableitem_t){
     .key = xmalloc(strlen(key)),
     .val = xmalloc(size),
     .empty = false
@@ -136,18 +136,18 @@ bool tableput(table_t* table, const char* key, const void* val, const size_t siz
   return true;
 }
 
-bool tableget(const table_t table, const char* key, tableitem_t* item)
+bool ctableget(const ctable_t table, const char* key, ctableitem_t* item)
 {
-  tableitem_t* bucket;
+  ctableitem_t* bucket;
   if (!getbucket(table, key, &bucket)) { return false; }
 
   *item = *bucket;
   return true;
 }
 
-bool tabledel(table_t* table, const char* key)
+bool ctabledel(ctable_t* table, const char* key)
 {
-  tableitem_t* bucket;
+  ctableitem_t* bucket;
   if (!getbucket(*table, key, &bucket)) { return false; }
 
   bucket->empty = true;
@@ -155,9 +155,9 @@ bool tabledel(table_t* table, const char* key)
   return true;
 }
 
-bool tableup(table_t* table, const char* key, const void* val, const size_t size)
+bool ctableup(ctable_t* table, const char* key, const void* val, const size_t size)
 {
-  tableitem_t* bucket;
+  ctableitem_t* bucket;
   if (!getbucket(*table, key, &bucket)) { return false; }
 
   memcpy(bucket->val, val, size);
