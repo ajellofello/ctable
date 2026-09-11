@@ -1,9 +1,11 @@
 # creates a static library archive and puts it into
 # build/
+#
+# MUST BE RAN IN THE ROOT OF THE PROJECT
 
 OBJECTS := $(addprefix build/, ctable.o)
 CFLAGS  := -std=c99
-targets  := $(addprefix build/, libctable.a ctable.h)
+targets := $(addprefix build/, libctable.a ctable.h)
 
 build/libctable.a: $(OBJECTS) build/ctable.h
 	$(AR) r $@ $^
