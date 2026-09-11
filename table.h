@@ -18,7 +18,7 @@ typedef struct
   size_t len;
 } table_t;
 
-bool tablecreate(size_t basesize, table_t* table);
+table_t* tablecreate(size_t basesize);
 void tablefree(table_t* table);
 bool tableput(table_t* table, char* key, void* val, size_t size);
 bool tableget(const table_t table, char* key, tableitem_t* item);

@@ -15,7 +15,7 @@ the value in the table won't change. Also this separates the lifetime of the ite
 from the lifetime of the original value.
 
 a custom version of `calloc()`, `malloc()` & `realloc()` are used `xcalloc()`, `xmalloc()` &
-`xrealloc()` which basically just exit from the program if either of them fail with a status 
+`xrealloc()` which basically just exit from the program if any of them fail with a status 
 code of `1`.
 
 # RESOURCES

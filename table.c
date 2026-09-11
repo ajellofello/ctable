@@ -86,15 +86,15 @@ bool getbucket(const table_t table, char* key, tableitem_t** bucket_ptr)
   return true;
 }
 
-table_t tablecreate(size_t basesize)
+table_t* tablecreate(size_t basesize)
 {
-  if (basesiz <= 0)
+  if (basesize <= 0)
   {
     fprintf(stderr, LIB": tablecreate(): the base size must be greater than 0\n");
     exit(1);
   }
 
-  table = xmalloc(sizeof(table_t));
+  table_t* table = xmalloc(sizeof(table_t));
   *table = (table_t){
     .cap = basesize,
     .items = xcalloc(basesize, sizeof(tableitem_t))
@@ -103,7 +103,7 @@ table_t tablecreate(size_t basesize)
   for (int i = 0; i < table->cap; i++)
     table->items[i].empty = true;
 
-  return true;
+  return table;
 }
 
 void tablefree(table_t* table)
@@ -125,11 +125,12 @@ bool tableput(table_t* table, char* key, void* val, size_t valsize)
   if (getbucket(*table, key, &bucket)) { return false; }
 
   *bucket = (tableitem_t){
-    .key = strdup(key),
+    .key = xmalloc(strlen(key)),
+    .val = xmalloc(valsize),
     .empty = false
   };
 
-  bucket->val = xmalloc(valsize);
+  strcpy(bucket->key, key);
   memcpy(bucket->val, val, valsize);
   table->len++;
   return true;
